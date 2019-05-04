@@ -1,4 +1,0 @@
-#Fri Apr 26 01:08:04 CST 2019
-base.0=C\:\\Users\\LLLLLLch\\StudioProjects\\facehealth\\facehealth\\build\\app\\intermediates\\transforms\\dexMerger\\debug\\0
-path.0=classes.dex
-renamed.0=classes.dex
