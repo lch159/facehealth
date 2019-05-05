@@ -1,7 +1,9 @@
 import 'package:facehealth/config/routes.dart';
+import 'package:facehealth/pages/Utils.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({
@@ -14,6 +16,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  var _isLogin = false;
+  var _name = "";
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Utils.initialSharedPreference();
+    _getSharedPreference();
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    super.deactivate();
+    _getSharedPreference();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +50,14 @@ class _HomePageState extends State<HomePage> {
       actions: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: Icon(Icons.file_download),
+          child: IconButton(
+            icon: Icon(Icons.file_download),
+            onPressed: () {
+              Routes.router.navigateTo(context, 'task', //跳转路径
+                  transition: TransitionType.inFromBottom //过场效果
+                  );
+            },
+          ),
         ),
       ],
     );
@@ -58,7 +84,7 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton(
       child: Icon(Icons.add),
       onPressed: () {
-        Routes.router.navigateTo(context, '/pages/Camera', //跳转路径
+        Routes.router.navigateTo(context, 'camera', //跳转路径
             transition: TransitionType.fadeIn //过场效果
             );
       },
@@ -80,67 +106,184 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMainPage(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        CarouselSlider(
-          items: [1, 2, 3, 4, 5].map((i) {
-            return Builder(
-              builder: (BuildContext context) {
-                return Container(
-                  width: MediaQuery.of(context).size.width,
-                  margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4.0),
-                      child: Container(
-                        color: Colors.blue,
-                      )),
-                );
-              },
-            );
-          }).toList(),
-          height: 150.0,
-          autoPlay: true,
-        ),
-        NewsCard(title: "这里是标题",description: "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",),
-        NewsCard(title: "这里是标题",description: "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",),
-        NewsCard(title: "这里是标题",description: "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",),
-        NewsCard(title: "这里是标题",description: "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",),
-        NewsCard(title: "这里是标题",description: "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",),
-        NewsCard(title: "这里是标题",description: "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          CarouselSlider(
+            items: [1, 2, 3, 4, 5].map((i) {
+              return Builder(
+                builder: (BuildContext context) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    margin:
+                        EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4.0),
+                        child: Container(
+                          color: Colors.blue,
+                        )),
+                  );
+                },
+              );
+            }).toList(),
+            height: 150.0,
+            autoPlay: true,
+          ),
+          Column(
+            children: _generateNews(),
+          )
+        ],
+      ),
     );
   }
 
   Widget _buildUserPage(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisAlignment:MainAxisAlignment.center ,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          new ClipOval(
-            child: new SizedBox(
-              width: 75.0,
-              height: 75.0,
-              child: Container(
-                child: Icon(Icons.person_outline,color: Colors.white,),
-                color: Colors.blue,
-              ),
+          GestureDetector(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ClipOval(
+                  child: SizedBox(
+                    width: 75.0,
+                    height: 75.0,
+                    child: Container(
+                      child: Icon(
+                        Icons.person_outline,
+                        color: Colors.white,
+                      ),
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: _isLogin
+                      ? Text(
+                          _name,
+                          style: TextStyle(
+                              fontSize: 30.0, fontWeight: FontWeight.w700),
+                        )
+                      : Text(
+                          "还未登录，点击登录",
+                          style: TextStyle(
+                              fontSize: 30.0, fontWeight: FontWeight.w700),
+                        ),
+                ),
+              ],
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 5.0),
-          ),
-          Text(
-            "这里是用户名",
-            style: TextStyle(
-                fontSize: 30.0, fontWeight: FontWeight.w700),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 10.0),
+            onTap: () {
+              print(_isLogin);
+              if (!_isLogin)
+                Routes.router.navigateTo(context, 'login', //跳转路径
+                    transition: TransitionType.fadeIn //过场效果
+                    );
+            },
           ),
           Divider(),
+          Card(
+            child: Column(
+              children: <Widget>[
+                _buildSingleRow(context, "体检日志", true, null),
+                _buildSingleRow(context, "任务进度", true, null),
+                _buildSingleRow(context, "历史照片", true, null),
+                _buildSingleRow(context, "设置", false, null),
+              ],
+            ),
+          ),
+          _isLogin
+              ? Card(
+                  child: _buildSingleRow(context, "退出登录", false, () {
+                    showDialog<Null>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('退出成功'),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text('确定'),
+                              onPressed: () {
+                                Routes.router.pop(context);
+                                Utils.initialSharedPreference();
+                                setState(() {
+                                  _isLogin = false;
+                                });
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    initState();
+                  }),
+                )
+              : Container(
+                  width: 0.0,
+                  height: 0.0,
+                ),
         ],
       ),
     );
+  }
+
+  List<NewsCard> _generateNews() {
+    List<NewsCard> _items = List<NewsCard>();
+    setState(() {
+      for (int i = 0; i < 5; i++)
+        _items.add(
+          NewsCard(
+            title: "这里是标题",
+            description:
+                "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          ),
+        );
+    });
+    return _items;
+  }
+
+  Widget _buildSingleRow(BuildContext context, String text, bool isDivided,
+      VoidCallback callback) {
+    return Column(
+      children: <Widget>[
+        FlatButton(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  text,
+                  style: TextStyle(color: Colors.black, fontSize: 17.0),
+                ),
+                Icon(Icons.keyboard_arrow_right),
+              ],
+            ),
+          ),
+          onPressed: callback,
+        ),
+        isDivided
+            ? Divider(
+                height: 10.0,
+              )
+            : Container(
+                width: 0.0,
+                height: 5.0,
+              ),
+      ],
+    );
+  }
+
+  void _getSharedPreference() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    setState(() {
+      if (sharedPreferences.getBool("isLogin")) {
+        _isLogin = true;
+        _name = sharedPreferences.getString("name");
+      }
+    });
   }
 }
 
@@ -153,14 +296,13 @@ class NewsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical:8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Card(
         child: ListTile(
           leading: ClipRRect(
-            borderRadius: new BorderRadius.all(new Radius.circular(10.0)),
-            child: new Container(
-              width: 100.0,
-              height: 100.0,
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            child: Container(
+              width: 75.0,
               color: Colors.blue,
             ),
           ),
@@ -172,7 +314,7 @@ class NewsCard extends StatelessWidget {
           subtitle: Text(
             description,
             style: TextStyle(fontSize: 15.0, color: Colors.black38),
-            maxLines: 4,
+            maxLines: 2,
             softWrap: true,
             overflow: TextOverflow.ellipsis,
           ),

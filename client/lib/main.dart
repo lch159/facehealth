@@ -1,4 +1,3 @@
-import 'package:facehealth/pages/Home.dart';
 import 'package:facehealth/config/routes.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';

@@ -12,8 +12,7 @@ class CameraPage extends StatelessWidget {
   }
 
   Widget _buildAppBar(BuildContext context) {
-    return AppBar(
-    );
+    return AppBar();
   }
 
   Widget _buildBody(BuildContext context) {
