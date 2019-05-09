@@ -10,8 +10,13 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(onGenerateRoute: Routes.router.generator);
+
+
+    return MaterialApp(onGenerateRoute: Routes.router.generator,theme: new ThemeData(
+      primaryColor: Colors.white
+    ),);
   }
 }

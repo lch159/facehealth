@@ -4,6 +4,7 @@ import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({
@@ -18,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   var _isLogin = false;
   var _name = "";
+  ///初始化屏幕数据
 
   @override
   void initState() {
@@ -36,6 +38,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.instance = ScreenUtil(width: 750, height: 1334)..init(context);
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildBody(context),
@@ -53,9 +56,11 @@ class _HomePageState extends State<HomePage> {
           child: IconButton(
             icon: Icon(Icons.file_download),
             onPressed: () {
-              Routes.router.navigateTo(context, 'task', //跳转路径
-                  transition: TransitionType.inFromBottom //过场效果
-                  );
+              Routes.router.navigateTo(
+                context, 'taskProgress', //跳转路径
+                transition: TransitionType.inFromRight, //过场效果
+
+              );
             },
           ),
         ),
@@ -63,12 +68,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildBottomNavigationBar(BuildContext context) {
+  Widget  _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.apps), title: Text("主页")),
+        BottomNavigationBarItem(icon: Icon(Icons.apps,color: Colors.black,), title: Text("主页",style: TextStyle(color: Colors.black),)),
         BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline), title: Text("我的")),
+            icon: Icon(Icons.person_outline,color:Colors.black), title: Text("我的",style: TextStyle(color: Colors.black),)),
       ],
       type: BottomNavigationBarType.fixed,
       currentIndex: _currentIndex,
@@ -89,6 +94,7 @@ class _HomePageState extends State<HomePage> {
             );
       },
       isExtended: true,
+      backgroundColor: Colors.blue,
     );
   }
 
@@ -120,7 +126,7 @@ class _HomePageState extends State<HomePage> {
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(4.0),
                         child: Container(
-                          color: Colors.blue,
+                          color: Colors.white,
                         )),
                   );
                 },
@@ -155,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                         Icons.person_outline,
                         color: Colors.white,
                       ),
-                      color: Colors.blue,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -165,12 +171,12 @@ class _HomePageState extends State<HomePage> {
                       ? Text(
                           _name,
                           style: TextStyle(
-                              fontSize: 30.0, fontWeight: FontWeight.w700),
+                              fontSize: 20.0, fontWeight: FontWeight.w700),
                         )
                       : Text(
                           "还未登录，点击登录",
                           style: TextStyle(
-                              fontSize: 30.0, fontWeight: FontWeight.w700),
+                              fontSize: 20.0, fontWeight: FontWeight.w700),
                         ),
                 ),
               ],
@@ -232,12 +238,12 @@ class _HomePageState extends State<HomePage> {
   List<NewsCard> _generateNews() {
     List<NewsCard> _items = List<NewsCard>();
     setState(() {
-      for (int i = 0; i < 5; i++)
+      for (int i = 0; i < 7; i++)
         _items.add(
           NewsCard(
             title: "这里是标题",
             description:
-                "这里是文章摘要xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "这里是文章摘要这里是文章摘要这里是文章摘要这里是文章摘要这里是文章摘要这里是文章摘要这里是文章摘要这里是文章摘要这里是文章摘要",
           ),
         );
     });
@@ -296,20 +302,20 @@ class NewsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Card(
         child: ListTile(
           leading: ClipRRect(
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
             child: Container(
               width: 75.0,
-              color: Colors.blue,
+              color: Colors.white,
             ),
           ),
           title: Text(
             title,
             textAlign: TextAlign.left, //文本对齐方式  居中
-            style: TextStyle(fontSize: 25.0, fontWeight: FontWeight.w300),
+            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
           ),
           subtitle: Text(
             description,

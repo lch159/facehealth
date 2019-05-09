@@ -2,6 +2,7 @@ import 'package:facehealth/pages/Home.dart';
 import 'package:facehealth/pages/Login.dart';
 import 'package:facehealth/pages/Register.dart';
 import 'package:facehealth/pages/Task.dart';
+import 'package:facehealth/pages/TaskProgress.dart';
 import 'package:fluro/fluro.dart';
 import 'package:facehealth/pages/Camera.dart';
 
@@ -17,6 +18,8 @@ class Routes {
         handler: Handler(handlerFunc: (context, params) => LoginPage()));
     router.define('register',
         handler: Handler(handlerFunc: (context, params) => RegisterPage()));
+    router.define('taskProgress',
+        handler: Handler(handlerFunc: (context, params) => TaskProgressPage()));
     router.define('task',
         handler: Handler(handlerFunc: (context, params) => TaskPage()));
     Routes.router = router;

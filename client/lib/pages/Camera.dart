@@ -18,23 +18,28 @@ class CameraPage extends StatelessWidget {
   Widget _buildBody(BuildContext context) {
     return Column(
       children: <Widget>[
-        CameraTypeCard(
+        StyleTypeCard(
           icon: Icons.camera_alt,
           name: "AI体检",
-          description: "通过拍摄人的脸部照片来监控人体健康状况",
+          description: "拍摄人脸部照片来监控人体健康状况",
         ),
-        CameraTypeCard(
+        StyleTypeCard(
           icon: Icons.camera,
           name: "美化风格",
           description: "人脸表情变换，风格迁移",
+        ),
+        StyleTypeCard(
+          icon: Icons.face,
+          name: "明星相似度",
+          description: "查看你和哪个明星人脸最像",
         ),
       ],
     );
   }
 }
 
-class CameraTypeCard extends StatelessWidget {
-  CameraTypeCard({this.icon, this.name, this.description});
+class StyleTypeCard extends StatelessWidget {
+  StyleTypeCard({this.icon, this.name, this.description});
 
   final IconData icon;
   final String name;
@@ -82,7 +87,10 @@ class CameraTypeCard extends StatelessWidget {
                     ),
                     Text(
                       description,
-                      style: TextStyle(fontSize: 15.0, color: Colors.black45),
+                      style: TextStyle(fontSize: 15.0, color: Colors.black38),
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -114,7 +122,7 @@ class CameraTypeCard extends StatelessWidget {
                     onPressed: () async {
                       Navigator.of(context).pop();
 
-                      await ImagePicker.pickImage(source: ImageSource.camera);
+                      await ImagePicker.pickImage(source: ImageSource.gallery);
                     },
                   ),
                 ],
