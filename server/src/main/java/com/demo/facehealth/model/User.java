@@ -31,4 +31,13 @@ public class User {
     }
 
     // 下面是 getter 和 setter 方法。。。
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

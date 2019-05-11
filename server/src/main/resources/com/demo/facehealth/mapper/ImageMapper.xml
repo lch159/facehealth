@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.demo.facehealth.mapper.ImageMapper">
+    <insert id="add" useGeneratedKeys="true" keyProperty="imageid">
+        insert into image(path, ownerid) values (#{path},#{ownerid})
+    </insert>
+
+    <select id="findOne" resultType="User">
+        select * from image
+        <where>
+            <!-- 重复说一下，id 不能是 int，int 默认是 0，不可能是 null, 而 Integer 可以是 null-->
+            <if test="imageid!=null">
+                imageid=#{imageid}
+            </if>
+            <if test="ownerid!=null">
+                and ownerid=#{ownerid}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findUserImage" resultType="Image" parameterType="int">
+        SELECT * FROM image WHERE ownerid = #{ownerid}
+    </select>
+</mapper>

@@ -5,22 +5,23 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.demo.facehealth.mapper.UserMapper;
 import com.demo.facehealth.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 
+
+
 @Service
 public class UserService {
-    private UserMapper userMapper;
 
-    @Autowired
-    public UserService(UserMapper userMapper) {
-        this.userMapper = userMapper;
-    }
+    private static String signKey = "SustechFacePro";
+
+    @Resource
+    private UserMapper userMapper;
 
     public User add(User user) {
         String passwordHash = passwordToHash(user.getPassword());
@@ -70,7 +71,7 @@ public class UserService {
         try {
             token = JWT.create()
                     .withAudience(user.getId().toString())          // 将 user id 保存到 token 里面
-                    .sign(Algorithm.HMAC256(user.getPassword()));   // 以 password 作为 token 的密钥
+                    .sign(Algorithm.HMAC256(signKey));              // 以 signKey 作为 token 的密钥
         } catch (UnsupportedEncodingException ignore) {
         }
         return token;

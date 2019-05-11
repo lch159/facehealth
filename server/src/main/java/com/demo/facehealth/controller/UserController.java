@@ -25,10 +25,12 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public Object add(User user) {
+    public Object add(@RequestBody  User user) {
+        System.out.println(user);
         if (userService.findByName(user.getName()) != null) {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("error", "用户名已被使用");
+
+            jsonObject.put("message", "用户名已被使用");
             return jsonObject;
         }
         return userService.add(user);
@@ -41,14 +43,18 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public Object login(User user) {
+    public Object login(@RequestBody User user) {
         User userInDataBase = userService.findByName(user.getName());
+        System.out.println(user);
         JSONObject jsonObject = new JSONObject();
         if (userInDataBase == null) {
+            jsonObject.put("result", "失败");
             jsonObject.put("message", "用户不存在");
         } else if (!userService.comparePassword(user, userInDataBase)) {
+            jsonObject.put("result", "失败");
             jsonObject.put("message", "密码不正确");
         } else {
+            jsonObject.put("result", "成功");
             String token = userService.getToken(userInDataBase);
             jsonObject.put("token", token);
             jsonObject.put("user", userInDataBase);
