@@ -9,12 +9,13 @@
         select * from user
         <where>
             <!-- 重复说一下，id 不能是 int，int 默认是 0，不可能是 null, 而 Integer 可以是 null-->
-            <if test="id!=null">
-                id=#{id}
-            </if>
             <if test="name!=null">
-                and name=#{name}
+                name=#{name}
             </if>
+            <if test="id!=null">
+                and id=#{id}
+            </if>
+
         </where>
     </select>
 

@@ -1,5 +1,5 @@
-com/demo/facehealth/service/UserService.class
-com/demo/facehealth/controller/UserController.class
-com/demo/facehealth/model/User.class
-com/demo/facehealth/FacehealthApplication.class
-com/demo/facehealth/mapper/UserMapper.class
+com\demo\facehealth\FacehealthApplication.class
+com\demo\facehealth\mapper\UserMapper.class
+com\demo\facehealth\service\UserService.class
+com\demo\facehealth\model\User.class
+com\demo\facehealth\controller\UserController.class

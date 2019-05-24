@@ -2,9 +2,9 @@ package com.demo.facehealth.model;
 
 
 public class User {
-    private Integer id;
-    private String name;
-    private String password;
+    private Integer id = null;
+    private String name = null;
+    private String password= null;
 
     public Integer getId() {
         return id;

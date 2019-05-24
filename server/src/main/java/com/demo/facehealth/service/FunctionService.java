@@ -79,12 +79,6 @@ public class FunctionService {
         return image;
     }
 
-    public int decodeToken(String token){
-        System.out.println("token is ");
-        System.out.println(token);
-
-        return 1;
-    }
 
 }
 

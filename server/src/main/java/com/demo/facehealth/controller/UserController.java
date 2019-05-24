@@ -2,6 +2,7 @@ package com.demo.facehealth.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.demo.facehealth.model.User;
+import com.demo.facehealth.service.JwtToken;
 import com.demo.facehealth.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,11 +22,14 @@ public class UserController {
     /**
      * 用户注册接口
      *
-     * @param user
+     * @param
      * @return
      */
     @PostMapping("/register")
-    public Object add(@RequestBody  User user) {
+    public Object add(@RequestParam  String name, @RequestParam String password) {
+        User user = new User();
+        user.setName(name);
+        user.setPassword(password);
         System.out.println(user);
         if (userService.findByName(user.getName()) != null) {
             JSONObject jsonObject = new JSONObject();
@@ -39,11 +43,14 @@ public class UserController {
     /**
      * 用户登录接口
      *
-     * @param user
+     * @param
      * @return
      */
     @PostMapping("/login")
-    public Object login(@RequestBody User user) {
+    public Object login(@RequestParam  String name, @RequestParam String password) {
+        User user = new User();
+        user.setName(name);
+        user.setPassword(password);
         User userInDataBase = userService.findByName(user.getName());
         System.out.println(user);
         JSONObject jsonObject = new JSONObject();
@@ -54,10 +61,10 @@ public class UserController {
             jsonObject.put("result", "失败");
             jsonObject.put("message", "密码不正确");
         } else {
+            User resultUser = userService.findByName(user.getName());
             jsonObject.put("result", "成功");
-            String token = userService.getToken(userInDataBase);
+            String token = JwtToken.sign(resultUser);
             jsonObject.put("token", token);
-            jsonObject.put("user", userInDataBase);
         }
         return jsonObject;
     }

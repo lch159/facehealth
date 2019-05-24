@@ -65,7 +65,7 @@ public class UserService {
         }
         return null;
     }
-
+/*
     public String getToken(User user) {
         String token = "";
         try {
@@ -77,5 +77,12 @@ public class UserService {
         return token;
     }
 
+    public int decodeToken(String token){
+        //TODO finish this function
+        System.out.println("token is ");
+        System.out.println(token);
 
+        return 1;
+    }
+*/
 }
