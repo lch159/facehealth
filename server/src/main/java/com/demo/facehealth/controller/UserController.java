@@ -26,18 +26,23 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
-    public Object add(@RequestParam  String name, @RequestParam String password) {
+    public Object add(@RequestParam  String username, @RequestParam String password) {
         User user = new User();
-        user.setName(name);
+        user.setName(username);
         user.setPassword(password);
         System.out.println(user);
+        JSONObject jsonObject = new JSONObject();
         if (userService.findByName(user.getName()) != null) {
-            JSONObject jsonObject = new JSONObject();
 
+            jsonObject.put("result","失败");
             jsonObject.put("message", "用户名已被使用");
             return jsonObject;
         }
-        return userService.add(user);
+        userService.add(user);
+        jsonObject.put("result", "成功");
+        String token = JwtToken.sign(user);
+        jsonObject.put("token", token);
+        return jsonObject;
     }
 
     /**
@@ -47,9 +52,9 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public Object login(@RequestParam  String name, @RequestParam String password) {
+    public Object login(@RequestParam  String username, @RequestParam String password) {
         User user = new User();
-        user.setName(name);
+        user.setName(username);
         user.setPassword(password);
         User userInDataBase = userService.findByName(user.getName());
         System.out.println(user);
