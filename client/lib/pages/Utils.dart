@@ -32,12 +32,15 @@ class Utils {
     return data;
   }
 
-  static void initialSharedPreference() async {
+  static Future<void> initialSharedPreference() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     sharedPreferences.clear();
     sharedPreferences.setString("token", "");
     sharedPreferences.setString("id", "");
-    sharedPreferences.setString("name", "");
+    sharedPreferences.setString("username", "");
     sharedPreferences.setBool("isLogin", false);
+    sharedPreferences.setString("ip", "10.0.2.2");
+    sharedPreferences.setString("port", "8080");
+//    sharedPreferences.setStringList("tasks", new List());//(task,token)
   }
 }
