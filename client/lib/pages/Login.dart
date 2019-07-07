@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:facehealth/config/routes.dart';
 import 'package:fluro/fluro.dart';
@@ -10,11 +12,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController nameController = new TextEditingController();
+  TextEditingController _usernameController = new TextEditingController();
 
-  TextEditingController passwordController = new TextEditingController();
+  TextEditingController _passwordController = new TextEditingController();
 
   var _isObscure = true;
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +32,8 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: _buildAppBar(context),
       body: _buildBody(context),
+      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
     );
   }
 
@@ -63,30 +75,30 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-//  Widget _buildLogoImage(BuildContext context) {
-//    return Container(
-//      width: 72.0,
-//      height: 72.0,
-//      color: Colors.blue,
-//    );
-//  }
-
   Widget _buildNameTextField(BuildContext context) {
     return TextFormField(
-      controller: nameController,
+      controller: _usernameController,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.person),
+        prefixIcon: Icon(
+          Icons.person,
+          color: Colors.black87,
+        ),
         labelText: '请输入你的用户名',
+        labelStyle: TextStyle(color: Colors.black87),
       ),
     );
   }
 
   Widget _buildPasswordTextField(BuildContext context) {
     return TextFormField(
-      controller: passwordController,
+      controller: _passwordController,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.lock),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: Colors.black87,
+        ),
         labelText: '请输入你的密码',
+        labelStyle: TextStyle(color: Colors.black87),
         suffixIcon: IconButton(
             icon: Icon(
               Icons.remove_red_eye,
@@ -115,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
             '登录',
             style: TextStyle(color: Colors.white, fontSize: 20.0),
           ),
-          onPressed: login,
+          onPressed: _login,
         ),
       ),
     );
@@ -135,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(color: Colors.white, fontSize: 20.0),
           ),
           onPressed: () {
-            Routes.router.navigateTo(context, 'register', //跳转路径
+            Routes.router.navigateTo(context, '/register', //跳转路径
                 transition: TransitionType.fadeIn //过场效果
                 );
           },
@@ -144,9 +156,10 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void login() async {
-    if (nameController.text.trim().length == 0 ||
-        passwordController.text.trim().length == 0) {
+  Future<void> _login() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    if (_usernameController.text.trim().length == 0 ||
+        _passwordController.text.trim().length == 0) {
       showDialog<Null>(
         context: context,
         builder: (BuildContext context) {
@@ -163,24 +176,28 @@ class _LoginPageState extends State<LoginPage> {
           );
         },
       );
+      return;
     }
     FormData loginFormData = new FormData.from({
-      "name": nameController.text,
-      "password": passwordController.text,
+      "username": _usernameController.text,
+      "password": _passwordController.text,
     });
 
+    String ip = sharedPreferences.getString("ip").trim();
+    String port = sharedPreferences.getString("port").trim();
+    String url = "http://" + ip + ":" + port + "/user/login";
+    print(url);
+
     Dio dio = new Dio();
-    Response response = await dio.post("http://106.14.1.150:8080/user/login",
-        data: loginFormData);
+    Response response = await dio.post(url, data: loginFormData);
 
     Map<String, dynamic> data = response.data;
-    print(data);
-    if (data.containsKey("message")) {
+    if (data["result"] == "失败") {
       showDialog<Null>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('账号或密码错误'),
+            title: Text(data["message"]),
             actions: <Widget>[
               FlatButton(
                 child: Text('确定'),
@@ -192,13 +209,11 @@ class _LoginPageState extends State<LoginPage> {
           );
         },
       );
+      return;
     } else {
-      SharedPreferences sharedPreferences =
-          await SharedPreferences.getInstance();
       sharedPreferences.setString("token", data["token"]);
-      sharedPreferences.setString("id", data["user"]["id"].toString());
-      sharedPreferences.setString("name", data["user"]["name"]);
       sharedPreferences.setBool("isLogin", true);
+      sharedPreferences.setString("username", _usernameController.text);
 
       showDialog<Null>(
         context: context,
@@ -209,8 +224,8 @@ class _LoginPageState extends State<LoginPage> {
               FlatButton(
                 child: Text('确定'),
                 onPressed: () {
-                 Routes.router.pop(context);
-                 Routes.router.pop(context);
+                  Routes.router.pop(context);
+                  Routes.router.pop(context);
                 },
               ),
             ],

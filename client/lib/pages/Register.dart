@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -68,9 +69,14 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       controller: nameController,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.person),
-        labelText: '请输入你的用户名',
-      ),
+          prefixIcon: Icon(
+            Icons.person,
+            color: Colors.black87,
+          ),
+          labelText: '请输入你的用户名',
+          labelStyle: TextStyle(
+            color: Colors.black87,
+          )),
     );
   }
 
@@ -78,8 +84,14 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       controller: passwordController,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.lock),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: Colors.black87,
+        ),
         labelText: '请输入你的密码',
+        labelStyle: TextStyle(
+          color: Colors.black87,
+        ),
         suffixIcon: IconButton(
             icon: Icon(
               Icons.remove_red_eye,
@@ -99,8 +111,14 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextFormField(
       controller: repasswordController,
       decoration: InputDecoration(
-        prefixIcon: Icon(Icons.lock),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: Colors.black87,
+        ),
         labelText: '请再次输入你的密码',
+        labelStyle: TextStyle(
+          color: Colors.black87,
+        ),
         suffixIcon: IconButton(
             icon: Icon(
               Icons.remove_red_eye,
@@ -155,26 +173,31 @@ class _RegisterPageState extends State<RegisterPage> {
       );
     } else {
       FormData loginFormData = new FormData.from({
-        "name": nameController.text,
+        "username": nameController.text,
         "password": passwordController.text,
       });
 
+      SharedPreferences sharedPreferences =
+          await SharedPreferences.getInstance();
+      String ip = sharedPreferences.getString("ip");
+      String port = sharedPreferences.getString("port");
       Dio dio = new Dio();
-      Response response = await dio
-          .post("http://106.14.1.150:8080/user/register", data: loginFormData);
+      Response response = await dio.post(
+          "http://" + ip + ":" + port + "/user/register",
+          data: loginFormData);
 
       Map<String, dynamic> data = response.data;
-      print(data);
-      if (data.containsKey("error")) {
+      if (data["result"] == "失败") {
         showDialog<Null>(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text('重复的用户名'),
+              title: Text(data["message"]),
               actions: <Widget>[
                 FlatButton(
                   child: Text('确定'),
                   onPressed: () {
+                    Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   },
                 ),

@@ -1,7 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'dart:convert';
+import 'dart:io';
 
-class CameraPage extends StatelessWidget {
+import 'package:camera/camera.dart';
+import 'package:facehealth/config/routes.dart';
+import 'package:fluro/fluro.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class StylePage extends StatefulWidget {
+  @override
+  _StylePageState createState() => _StylePageState();
+}
+
+List<CameraDescription> cameras;
+
+class _StylePageState extends State<StylePage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -20,17 +33,17 @@ class CameraPage extends StatelessWidget {
       children: <Widget>[
         StyleTypeCard(
           icon: Icons.camera_alt,
-          name: "AI体检",
+          type: "AI体检",
           description: "拍摄人脸部照片来监控人体健康状况",
         ),
         StyleTypeCard(
           icon: Icons.camera,
-          name: "美化风格",
+          type: "美化风格",
           description: "人脸表情变换，风格迁移",
         ),
         StyleTypeCard(
           icon: Icons.face,
-          name: "明星相似度",
+          type: "明星相似度",
           description: "查看你和哪个明星人脸最像",
         ),
       ],
@@ -38,12 +51,27 @@ class CameraPage extends StatelessWidget {
   }
 }
 
-class StyleTypeCard extends StatelessWidget {
-  StyleTypeCard({this.icon, this.name, this.description});
+class StyleTypeCard extends StatefulWidget {
+  StyleTypeCard({
+    this.icon,
+    this.type,
+    this.description,
+  });
 
   final IconData icon;
-  final String name;
+  final String type;
   final String description;
+
+  @override
+  _StyleTypeCardState createState() => _StyleTypeCardState();
+}
+
+class _StyleTypeCardState extends State<StyleTypeCard> {
+  String _selectGender = "男";
+
+  var _selectAge = "";
+
+  File _image;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +90,7 @@ class StyleTypeCard extends StatelessWidget {
                     height: 75.0,
                     child: Container(
                       child: Icon(
-                        icon,
+                        widget.icon,
                         color: Colors.white,
                       ),
                       color: Colors.blue,
@@ -77,7 +105,7 @@ class StyleTypeCard extends StatelessWidget {
                     Align(
                       alignment: FractionalOffset.centerLeft,
                       child: Text(
-                        name,
+                        widget.type,
                         style: TextStyle(
                             fontSize: 30.0, fontWeight: FontWeight.w700),
                       ),
@@ -86,7 +114,7 @@ class StyleTypeCard extends StatelessWidget {
                       padding: EdgeInsets.only(top: 5.0),
                     ),
                     Text(
-                      description,
+                      widget.description,
                       style: TextStyle(fontSize: 15.0, color: Colors.black38),
                       maxLines: 2,
                       softWrap: true,
@@ -103,31 +131,44 @@ class StyleTypeCard extends StatelessWidget {
           ),
         ),
       ),
-      onTap: () {
-        showDialog(
+      onTap: () async {
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+        if (sharedPreferences.getBool("isLogin")) {
+          String data = json.encode({
+            'type': widget.type,
+            'age': _selectAge,
+            'gender': _selectGender,
+            'description': widget.description
+          });
+          Routes.router.navigateTo(context, '/styleinfo/$data', //跳转路径
+              transition: TransitionType.fadeIn);
+        } else {
+          showDialog<Null>(
             context: context,
             builder: (BuildContext context) {
-              return SimpleDialog(
-                children: <Widget>[
+              return AlertDialog(
+                title: Text('还未登录是否要现在登录'),
+                actions: <Widget>[
                   FlatButton(
-                    child: Text('拍照'),
-                    onPressed: () async {
+                    child: Text('确定'),
+                    onPressed: () {
                       Navigator.of(context).pop();
-
-                      await ImagePicker.pickImage(source: ImageSource.camera);
+                      Routes.router.navigateTo(context, '/login', //跳转路径
+                          transition: TransitionType.fadeIn);
                     },
                   ),
                   FlatButton(
-                    child: Text('从相册选取'),
-                    onPressed: () async {
+                    child: Text('取消'),
+                    onPressed: () {
                       Navigator.of(context).pop();
-
-                      await ImagePicker.pickImage(source: ImageSource.gallery);
                     },
                   ),
                 ],
               );
-            });
+            },
+          );
+        }
       },
     );
   }

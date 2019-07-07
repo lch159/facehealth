@@ -1,10 +1,10 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:facehealth/config/routes.dart';
 import 'package:facehealth/pages/Utils.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({
@@ -19,14 +19,14 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   var _isLogin = false;
   var _name = "";
-  ///初始化屏幕数据
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Utils.initialSharedPreference();
-    _getSharedPreference();
+    Utils.initialSharedPreference().then((value) {
+      _getSharedPreference();
+    });
   }
 
   @override
@@ -45,6 +45,8 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: _buildBottomNavigationBar(context),
       floatingActionButton: _buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomPadding: false,
     );
   }
 
@@ -55,12 +57,40 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: IconButton(
             icon: Icon(Icons.file_download),
-            onPressed: () {
-              Routes.router.navigateTo(
-                context, 'taskProgress', //跳转路径
-                transition: TransitionType.inFromRight, //过场效果
-
-              );
+            onPressed: () async {
+              SharedPreferences sharedPreferences =
+                  await SharedPreferences.getInstance();
+              if (sharedPreferences.getBool("isLogin")) {
+                Routes.router.navigateTo(
+                  context, '/taskProgress', //跳转路径
+                  transition: TransitionType.inFromRight, //过场效果
+                );
+              } else {
+                showDialog<Null>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('还未登录是否要现在登录'),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text('确定'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            Routes.router.navigateTo(context, '/login', //跳转路径
+                                transition: TransitionType.fadeIn);
+                          },
+                        ),
+                        FlatButton(
+                          child: Text('取消'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }
             },
           ),
         ),
@@ -68,12 +98,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget  _buildBottomNavigationBar(BuildContext context) {
+  Widget _buildBottomNavigationBar(BuildContext context) {
     return BottomNavigationBar(
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.apps,color: Colors.black,), title: Text("主页",style: TextStyle(color: Colors.black),)),
         BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline,color:Colors.black), title: Text("我的",style: TextStyle(color: Colors.black),)),
+            icon: Icon(
+              Icons.apps,
+              color: Colors.black,
+            ),
+            title: Text(
+              "主页",
+              style: TextStyle(color: Colors.black),
+            )),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline, color: Colors.black),
+            title: Text(
+              "我的",
+              style: TextStyle(color: Colors.black),
+            )),
       ],
       type: BottomNavigationBarType.fixed,
       currentIndex: _currentIndex,
@@ -82,6 +124,10 @@ class _HomePageState extends State<HomePage> {
           _currentIndex = index;
         });
       },
+      selectedIconTheme: IconThemeData(
+        color: Colors.blue,
+        size: 30.0,
+      ),
     );
   }
 
@@ -89,7 +135,7 @@ class _HomePageState extends State<HomePage> {
     return FloatingActionButton(
       child: Icon(Icons.add),
       onPressed: () {
-        Routes.router.navigateTo(context, 'camera', //跳转路径
+        Routes.router.navigateTo(context, '/style', //跳转路径
             transition: TransitionType.fadeIn //过场效果
             );
       },
@@ -157,10 +203,7 @@ class _HomePageState extends State<HomePage> {
                     width: 75.0,
                     height: 75.0,
                     child: Container(
-                      child: Icon(
-                        Icons.person_outline,
-                        color: Colors.white,
-                      ),
+                      child: Image.asset("images/avatar.jpg"),
                       color: Colors.white,
                     ),
                   ),
@@ -182,9 +225,8 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
             onTap: () {
-              print(_isLogin);
               if (!_isLogin)
-                Routes.router.navigateTo(context, 'login', //跳转路径
+                Routes.router.navigateTo(context, '/login', //跳转路径
                     transition: TransitionType.fadeIn //过场效果
                     );
             },
@@ -194,7 +236,10 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               children: <Widget>[
                 _buildSingleRow(context, "体检日志", true, null),
-                _buildSingleRow(context, "任务进度", true, null),
+                _buildSingleRow(context, "任务进度", true, () {
+                  Routes.router.navigateTo(context, 'taskProgress',
+                      transition: TransitionType.inFromRight);
+                }),
                 _buildSingleRow(context, "历史照片", true, null),
                 _buildSingleRow(context, "设置", false, null),
               ],
@@ -207,7 +252,10 @@ class _HomePageState extends State<HomePage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('退出成功'),
+                          title: Text(
+                            '退出成功',
+                            style: TextStyle(color: Colors.red),
+                          ),
                           actions: <Widget>[
                             FlatButton(
                               child: Text('确定'),
@@ -287,7 +335,7 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       if (sharedPreferences.getBool("isLogin")) {
         _isLogin = true;
-        _name = sharedPreferences.getString("name");
+        _name = sharedPreferences.getString("username");
       }
     });
   }
